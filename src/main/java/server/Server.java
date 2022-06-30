@@ -14,7 +14,8 @@ public class Server {
     private List<ClientHandler> handlers;
     private ServerStatus status;
     final private int port = 8080;
-    final private static int MAX_PLAYERS_PER_LOBBY = 1;
+    final private static int MAX_PLAYERS_PER_LOBBY = 4;
+    private int playerCount = 0;
 
     private Server (){
         handlers = new ArrayList<>();
@@ -52,6 +53,26 @@ public class Server {
         handler.authenticate(name);
         System.err.println("Authenticated client with token " + handler.getAuthToken());
         handlers.add(handler);
+        if (playerCount == 0){
+            handler.sendMessage("You are the host! How many players in this game?\n(Enter a number between 2 to " + MAX_PLAYERS_PER_LOBBY + ")");
+            String number = handler.getInput();
+            while (true){
+                try{
+                    int n = Integer.parseInt(number);
+                    if (2 <= n && n <= MAX_PLAYERS_PER_LOBBY){
+                        handler.sendMessage("Lobby with " + n + " players created.");
+                        playerCount = n;
+                        break;
+                    }
+                    else{
+                        handler.sendMessage("Invalid input. Please try again.");
+                    }
+                } catch (NumberFormatException e){
+                    handler.sendMessage("Invalid input. Please try again.");
+                }
+                number = handler.getInput();
+            }
+        }
         new Thread(handler).start();
         checkStatus();
     }
@@ -84,6 +105,8 @@ public class Server {
             if (handler.getAuthToken().equals(token)) {
                 handlers.remove(handler);
                 checkStatus();
+                if (handlers.isEmpty())
+                    playerCount = 0;
                 return;
             }
     }

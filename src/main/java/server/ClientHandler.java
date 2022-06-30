@@ -44,6 +44,7 @@ public class ClientHandler implements Runnable{
     @Override
     public void run() {
         try{
+            sendMessage("Connected to the server!");
             while (!socket.isClosed()){
                 String S = getInput();
                 Server server = Server.getInstance();
