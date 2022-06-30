@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class ClientHandler implements Runnable{
@@ -55,6 +56,12 @@ public class ClientHandler implements Runnable{
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (NoSuchElementException e){
+            try {
+                socket.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
