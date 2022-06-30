@@ -92,7 +92,7 @@ public class Server {
     }
 
     public void checkStatus(){
-        if (handlers.size() >= MAX_PLAYERS_PER_LOBBY){
+        if (handlers.size() >= playerCount){
             status = FULL;
         }
         else{
