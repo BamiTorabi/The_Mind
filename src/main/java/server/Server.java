@@ -48,10 +48,27 @@ public class Server {
             handler.kill();
             return;
         }
+        handler.sendMessage("Enter your name: ");
+        String name = handler.getInput();
+        handler.authenticate(name);
         handlers.add(handler);
         new Thread(handler).start();
         if (handlers.size() == MAX_PLAYERS_PER_LOBBY){
             status = FULL;
+        }
+    }
+
+    public void sendToAll(String token, String message){
+        String name = "";
+        for (ClientHandler handler : handlers)
+            if (handler.getAuthToken().equals(token))
+                name = handler.getName();
+        for (ClientHandler handler : handlers){
+            try {
+                handler.sendMessage("> " + name + ": " + message);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
