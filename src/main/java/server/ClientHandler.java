@@ -58,7 +58,7 @@ public class ClientHandler implements Runnable{
             throw new RuntimeException(e);
         } catch (NoSuchElementException e){
             try {
-                socket.close();
+                kill();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -67,6 +67,7 @@ public class ClientHandler implements Runnable{
 
     public void kill() throws IOException {
         socket.close();
+        Server.getInstance().removeHandler(authToken);
     }
 
     public String getAuthToken() {

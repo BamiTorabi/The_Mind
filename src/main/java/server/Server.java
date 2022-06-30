@@ -6,8 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import static server.ServerStatus.FULL;
-import static server.ServerStatus.OPEN;
+import static server.ServerStatus.*;
 
 public class Server {
 
@@ -15,7 +14,7 @@ public class Server {
     private List<ClientHandler> handlers;
     private ServerStatus status;
     final private int port = 8080;
-    final private static int MAX_PLAYERS_PER_LOBBY = 6;
+    final private static int MAX_PLAYERS_PER_LOBBY = 1;
 
     private Server (){
         handlers = new ArrayList<>();
@@ -51,11 +50,10 @@ public class Server {
         handler.sendMessage("Enter your name: ");
         String name = handler.getInput();
         handler.authenticate(name);
+        System.err.println("Authenticated client with token " + handler.getAuthToken());
         handlers.add(handler);
         new Thread(handler).start();
-        if (handlers.size() == MAX_PLAYERS_PER_LOBBY){
-            status = FULL;
-        }
+        checkStatus();
     }
 
     public void sendToAll(String token, String message){
@@ -70,6 +68,24 @@ public class Server {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public void checkStatus(){
+        if (handlers.size() >= MAX_PLAYERS_PER_LOBBY){
+            status = FULL;
+        }
+        else{
+            status = OPEN;
+        }
+    }
+
+    public void removeHandler(String token){
+        for (ClientHandler handler : handlers)
+            if (handler.getAuthToken().equals(token)) {
+                handlers.remove(handler);
+                checkStatus();
+                return;
+            }
     }
 
     public int getPort() {
