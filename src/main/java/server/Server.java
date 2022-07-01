@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static server.ServerStatus.*;
@@ -14,15 +12,16 @@ public class Server {
 
     private static final String[] validEmojis = {":)", ":D", ":(", ":|", ":/", ":P", ":O"};
     private static Server server = null;
+    private Game game;
     private List<ClientHandler> handlers;
     private ServerStatus status;
     final private int port = 8080;
     final private int playersPerLobby = 4;
-    private int playerCount = 0;
-    private String host = "";
+    private String hostToken = "";
 
     private Server (){
         handlers = new ArrayList<>();
+        game = Game.getInstance();
         status = OPEN;
     }
 
@@ -56,7 +55,7 @@ public class Server {
         System.err.println("Authenticated client with token " + handler.getAuthToken());
         handler.askName();
         handlers.add(handler);
-        if (host.equals("")){
+        if (hostToken.equals("")){
             handler.askNumberOfPlayers();
         }
         new Thread(handler).start();
@@ -78,7 +77,7 @@ public class Server {
     }
 
     public void checkStatus(){
-        if (handlers.size() >= playerCount){
+        if (handlers.size() >= game.getPlayerCount()){
             status = FULL;
         }
         else{
@@ -86,37 +85,38 @@ public class Server {
         }
     }
 
-    public void removeHandler(String token){
+    public void removeHandler(String token) throws IOException {
         for (ClientHandler handler : handlers)
             if (handler.getAuthToken().equals(token)) {
                 handlers.remove(handler);
                 checkStatus();
-                if (handlers.isEmpty()) {
-                    playerCount = 0;
-                    host = "";
+                if (token.equals(hostToken)) {
+                    game.setPlayerCount(0);
+                    hostToken = "";
+                    if (handlers.isEmpty())
+                        return;
+                    System.err.println(handlers.get(0).getName());
+                    handlers.get(0).askNumberOfPlayers();
+
                 }
                 return;
             }
     }
 
-    public void setPlayerCount(int playerCount) {
-        this.playerCount = playerCount;
-    }
-
-    public int getPort() {
-        return port;
-    }
 
     public int getPlayersPerLobby() {
         return playersPerLobby;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setHostToken(String hostToken) {
+        this.hostToken = hostToken;
     }
 
-    public String getHost() {
-        return host;
+    public String getHostToken() {
+        return hostToken;
     }
 
+    public Game getGame() {
+        return game;
+    }
 }

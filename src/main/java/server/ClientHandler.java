@@ -52,8 +52,8 @@ public class ClientHandler implements Runnable{
             try{
                 int n = Integer.parseInt(number);
                 if (2 <= n && n <= server.getPlayersPerLobby()){
-                    server.setPlayerCount(n);
-                    server.setHost(this.authToken);
+                    server.getGame().setPlayerCount(n);
+                    server.setHostToken(this.authToken);
                     break;
                 }
                 else{
@@ -75,7 +75,7 @@ public class ClientHandler implements Runnable{
                 switch (S[1]){
                     case "MESSAGE":
                         if (S[2].equalsIgnoreCase("start")){
-                            if (server.getHost().equals(S[0])){
+                            if (server.getHostToken().equals(S[0])){
 
                             }
                             else{

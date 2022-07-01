@@ -6,6 +6,7 @@ public class UserHandler implements Runnable{
 
     private Scanner scanner;
     private Client client;
+    private Boolean dead = false;
 
     public UserHandler(Client cl){
         this.scanner = new Scanner(System.in);
@@ -13,20 +14,31 @@ public class UserHandler implements Runnable{
     }
 
     public void tell(String message){
-        System.out.println(message);
+        if (dead)
+            return;
+        System.out.print(message);
     }
 
     public String ask(String question){
-        System.out.print(question);
-        String answer = scanner.nextLine();
-        return answer;
+        if (dead)
+            return "";
+        tell(question);
+        return scanner.nextLine();
     }
 
     @Override
     public void run() {
-        while (true){
-            String S = ask("");
-            client.reactToUser(S);
+        synchronized (dead) {
+            while (!dead) {
+                String S = ask("");
+                client.reactToUser(S);
+            }
+        }
+    }
+
+    public void kill(){
+        synchronized (dead) {
+            dead = true;
         }
     }
 }

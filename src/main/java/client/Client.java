@@ -9,8 +9,6 @@ import java.util.Scanner;
 public class Client implements Runnable{
 
     private Socket socket;
-    private String name;
-    private int id;
     private String authToken;
     private Scanner input;
     private PrintWriter output;
@@ -22,13 +20,13 @@ public class Client implements Runnable{
         this.output = new PrintWriter(socket.getOutputStream());
         this.user = new UserHandler(this);
         String response = "";
-        while (true){
+        while (!socket.isClosed()){
             String[] S = getMessage().split("/");
             switch (S[0]){
                 case "ERROR":
                     switch (S[1]){
                         case "FULL":
-                            user.tell("Sorry, the server is full!");
+                            user.tell("Sorry, the server is full!\n");
                             kill();
                             break;
                         case "HOST":
@@ -36,7 +34,7 @@ public class Client implements Runnable{
                             sendMessage("PLAYER_CNT/" + response);
                             break;
                         case "NOT_HOST":
-                            user.tell("Sorry, you can't start the game; only the host can do that.");
+                            user.tell("Sorry, you can't do that; only the host can do that.\n");
                             break;
                     }
                     break;
@@ -57,7 +55,9 @@ public class Client implements Runnable{
                     new Thread(user).start();
                     break;
             }
+
         }
+        user.kill();
     }
 
     public void sendMessage(String message) throws IOException {
@@ -83,8 +83,7 @@ public class Client implements Runnable{
     public void run() {
         try{
             init();
-        } catch (IOException e){
-
+        } catch (Exception e){
         }
     }
 
