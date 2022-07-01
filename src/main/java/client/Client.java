@@ -1,6 +1,5 @@
 package client;
 
-import server.Server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,48 +14,47 @@ public class Client implements Runnable{
     private String authToken;
     private Scanner input;
     private PrintWriter output;
+    private UserHandler user;
 
     public void init() throws IOException {
         this.socket = new Socket("localhost", 8080);
         this.input = new Scanner(socket.getInputStream());
         this.output = new PrintWriter(socket.getOutputStream());
-        Scanner sc = new Scanner(System.in);
+        this.user = new UserHandler(this);
         String response = "";
         while (true){
-            String[] S = getInput().split("/");
+            String[] S = getMessage().split("/");
             switch (S[0]){
                 case "ERROR":
                     switch (S[1]){
                         case "FULL":
-                            System.out.println("Sorry, the server is full!");
+                            user.tell("Sorry, the server is full!");
                             kill();
                             break;
                         case "HOST":
-                            System.out.println("Invalid input. Please try again.");
-                            response = sc.nextLine();
+                            response = user.ask("Invalid input. Please try again.\n");
                             sendMessage("PLAYER_CNT/" + response);
                             break;
-
+                        case "NOT_HOST":
+                            user.tell("Sorry, you can't start the game; only the host can do that.");
+                            break;
                     }
-
                     break;
                 case "STATE":
                     System.out.println(S);
                     break;
                 case "NAME":
-                    System.out.print("Enter your name: ");
-                    response = sc.nextLine();
+                    response = user.ask("Enter your name: ");
                     sendMessage("NAME/" + response);
                     break;
-                case "ID":
-                    try {
-                        this.id = Integer.parseInt(S[1]);
-                    } catch (NumberFormatException e) {}
-                    break;
                 case "HOST":
-                    System.out.println("You are the host!\nHow many players in the server?\n(Enter a number between 2 and 4)");
-                    response = sc.nextLine();
+                    response = user.ask("You are the host!\n" +
+                            "How many players in the server?\n" +
+                            "(Enter a number between 2 and 4)\n");
                     sendMessage("PLAYER_CNT/" + response);
+                    break;
+                case "HANDLE_USER":
+                    new Thread(user).start();
                     break;
             }
         }
@@ -68,9 +66,17 @@ public class Client implements Runnable{
         output.flush();
     }
 
-    public String getInput() throws IOException {
+    public String getMessage() throws IOException {
         input = new Scanner(socket.getInputStream());
         return input.nextLine();
+    }
+
+    public void reactToUser(String message){
+        try {
+            sendMessage("MESSAGE/" + message);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -84,6 +90,5 @@ public class Client implements Runnable{
 
     public void kill() throws IOException {
         socket.close();
-        Server.getInstance().removeHandler(authToken);
     }
 }

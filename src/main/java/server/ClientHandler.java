@@ -4,23 +4,22 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class ClientHandler implements Runnable{
-
-    private static String[] validEmojis = {":)", ":D", ":(", ":|", ":/", ":P", ":O"};
     private Socket socket;
     private String authToken;
     private Scanner input;
     private PrintWriter output;
     private String name;
     private SecureRandom random;
+    private Server server;
 
-    ClientHandler (Socket socket){
+    public ClientHandler (Socket socket){
         this.socket = socket;
         random = new SecureRandom();
+        server = Server.getInstance();
     }
 
     public void sendMessage(String message) throws IOException {
@@ -34,20 +33,57 @@ public class ClientHandler implements Runnable{
         return input.nextLine();
     }
 
-    public void authenticate(String name){
-        this.name = name;
+    public void authenticate(){
         byte[] bytes = new byte[20];
         random.nextBytes(bytes);
-        this.authToken = Arrays.toString(bytes);
+        this.authToken = bytes.toString();
+    }
+
+    public void askName() throws IOException {
+        sendMessage("NAME");
+        String name = getInput().split("/")[2];
+        setName(name);
+    }
+
+    public void askNumberOfPlayers() throws IOException {
+        sendMessage("HOST");
+        String number = getInput().split("/")[2];
+        while (true){
+            try{
+                int n = Integer.parseInt(number);
+                if (2 <= n && n <= server.getPlayersPerLobby()){
+                    server.setPlayerCount(n);
+                    server.setHost(this.authToken);
+                    break;
+                }
+                else{
+                    sendMessage("ERROR/HOST");
+                }
+            } catch (NumberFormatException e){
+                sendMessage("ERROR/HOST");
+            }
+            number = getInput().split("/")[2];
+        }
     }
 
     @Override
     public void run() {
         try{
+            sendMessage("HANDLE_USER");
             while (!socket.isClosed()){
                 String[] S = getInput().split("/");
                 switch (S[1]){
                     case "MESSAGE":
+                        if (S[2].equalsIgnoreCase("start")){
+                            if (server.getHost().equals(S[0])){
+
+                            }
+                            else{
+                                sendMessage("ERROR/NOT_HOST");
+                            }
+                        }
+                        break;
+                    case "":
                         break;
                 }
             }
@@ -73,5 +109,9 @@ public class ClientHandler implements Runnable{
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

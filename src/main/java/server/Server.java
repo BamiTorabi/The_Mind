@@ -4,19 +4,22 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static server.ServerStatus.*;
 
 public class Server {
 
+    private static final String[] validEmojis = {":)", ":D", ":(", ":|", ":/", ":P", ":O"};
     private static Server server = null;
     private List<ClientHandler> handlers;
     private ServerStatus status;
     final private int port = 8080;
-    final private static int MAX_PLAYERS_PER_LOBBY = 4;
+    final private int playersPerLobby = 4;
     private int playerCount = 0;
-    private int host = 0;
+    private String host = "";
 
     private Server (){
         handlers = new ArrayList<>();
@@ -49,31 +52,12 @@ public class Server {
             handler.kill();
             return;
         }
-        handler.sendMessage("NAME");
-        String name = handler.getInput().split("/")[2];
-        handler.authenticate(name);
-        handler.sendMessage("ID/" + handlers.size());
+        handler.authenticate();
         System.err.println("Authenticated client with token " + handler.getAuthToken());
+        handler.askName();
         handlers.add(handler);
-        if (playerCount == 0){
-            handler.sendMessage("HOST");
-            String number = handler.getInput().split("/")[2];
-            while (true){
-                try{
-                    int n = Integer.parseInt(number);
-                    if (2 <= n && n <= MAX_PLAYERS_PER_LOBBY){
-                        playerCount = n;
-                        host = handlers.size();
-                        break;
-                    }
-                    else{
-                        handler.sendMessage("ERROR/HOST");
-                    }
-                } catch (NumberFormatException e){
-                    handler.sendMessage("ERROR/HOST");
-                }
-                number = handler.getInput();
-            }
+        if (host.equals("")){
+            handler.askNumberOfPlayers();
         }
         new Thread(handler).start();
         checkStatus();
@@ -109,7 +93,7 @@ public class Server {
                 checkStatus();
                 if (handlers.isEmpty()) {
                     playerCount = 0;
-                    host = 0;
+                    host = "";
                 }
                 return;
             }
@@ -122,4 +106,17 @@ public class Server {
     public int getPort() {
         return port;
     }
+
+    public int getPlayersPerLobby() {
+        return playersPerLobby;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
 }
