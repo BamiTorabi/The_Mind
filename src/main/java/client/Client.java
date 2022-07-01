@@ -28,7 +28,7 @@ public class Client implements Runnable{
                 case "ERROR":
                     switch (S[1]){
                         case "FULL":
-                            user.tell("Sorry, the server is full!");
+                            user.tell("Sorry, the server is full!\n");
                             kill();
                             break;
                         case "HOST":
@@ -36,7 +36,7 @@ public class Client implements Runnable{
                             sendMessage("PLAYER_CNT/" + response);
                             break;
                         case "NOT_HOST":
-                            user.tell("Sorry, you can't start the game; only the host can do that.");
+                            user.tell("Sorry, you can't start the game; only the host can do that.\n");
                             break;
                     }
                     break;

@@ -13,11 +13,11 @@ public class UserHandler implements Runnable{
     }
 
     public void tell(String message){
-        System.out.println(message);
+        System.out.print(message);
     }
 
     public String ask(String question){
-        System.out.print(question);
+        tell(question);
         String answer = scanner.nextLine();
         return answer;
     }
