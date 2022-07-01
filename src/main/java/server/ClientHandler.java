@@ -44,16 +44,9 @@ public class ClientHandler implements Runnable{
     @Override
     public void run() {
         try{
-            sendMessage("Connected to the server!");
             while (!socket.isClosed()){
-                String S = getInput();
-                Server server = Server.getInstance();
-                if (Arrays.asList(validEmojis).contains(S)){
-                    server.sendToAll(authToken, S);
-                }
-                else{
-                    sendMessage("Invalid text.");
-                }
+                String[] S = getInput().split("/");
+
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

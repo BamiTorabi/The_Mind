@@ -44,31 +44,31 @@ public class Server {
     public void addNewClientHandler(Socket socket) throws IOException {
         ClientHandler handler = new ClientHandler(socket);
         if (status != OPEN){
-            handler.sendMessage("Sorry, the server is full!");
+            handler.sendMessage("ERROR/FULL");
             handler.kill();
             return;
         }
-        handler.sendMessage("Enter your name: ");
-        String name = handler.getInput();
+        handler.sendMessage("NAME");
+        String name = handler.getInput().split("/")[1];
         handler.authenticate(name);
+        handler.sendMessage("ID/" + handlers.size());
         System.err.println("Authenticated client with token " + handler.getAuthToken());
         handlers.add(handler);
         if (playerCount == 0){
-            handler.sendMessage("You are the host! How many players in this game?\n(Enter a number between 2 to " + MAX_PLAYERS_PER_LOBBY + ")");
-            String number = handler.getInput();
+            handler.sendMessage("HOST");
+            String number = handler.getInput().split("/")[1];
             while (true){
                 try{
                     int n = Integer.parseInt(number);
                     if (2 <= n && n <= MAX_PLAYERS_PER_LOBBY){
-                        handler.sendMessage("Lobby with " + n + " players created.");
                         playerCount = n;
                         break;
                     }
                     else{
-                        handler.sendMessage("Invalid input. Please try again.");
+                        handler.sendMessage("ERROR/HOST");
                     }
                 } catch (NumberFormatException e){
-                    handler.sendMessage("Invalid input. Please try again.");
+                    handler.sendMessage("ERROR/HOST");
                 }
                 number = handler.getInput();
             }
