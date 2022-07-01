@@ -46,7 +46,10 @@ public class ClientHandler implements Runnable{
         try{
             while (!socket.isClosed()){
                 String[] S = getInput().split("/");
-
+                switch (S[1]){
+                    case "MESSAGE":
+                        break;
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

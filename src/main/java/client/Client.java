@@ -34,7 +34,7 @@ public class Client implements Runnable{
                         case "HOST":
                             System.out.println("Invalid input. Please try again.");
                             response = sc.nextLine();
-                            sendMessage("HOST/" + response);
+                            sendMessage("PLAYER_CNT/" + response);
                             break;
 
                     }
@@ -64,7 +64,7 @@ public class Client implements Runnable{
 
     public void sendMessage(String message) throws IOException {
         output = new PrintWriter(socket.getOutputStream());
-        output.println(message);
+        output.println(this.authToken + "/" + message);
         output.flush();
     }
 

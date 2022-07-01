@@ -16,6 +16,7 @@ public class Server {
     final private int port = 8080;
     final private static int MAX_PLAYERS_PER_LOBBY = 4;
     private int playerCount = 0;
+    private int host = 0;
 
     private Server (){
         handlers = new ArrayList<>();
@@ -49,19 +50,20 @@ public class Server {
             return;
         }
         handler.sendMessage("NAME");
-        String name = handler.getInput().split("/")[1];
+        String name = handler.getInput().split("/")[2];
         handler.authenticate(name);
         handler.sendMessage("ID/" + handlers.size());
         System.err.println("Authenticated client with token " + handler.getAuthToken());
         handlers.add(handler);
         if (playerCount == 0){
             handler.sendMessage("HOST");
-            String number = handler.getInput().split("/")[1];
+            String number = handler.getInput().split("/")[2];
             while (true){
                 try{
                     int n = Integer.parseInt(number);
                     if (2 <= n && n <= MAX_PLAYERS_PER_LOBBY){
                         playerCount = n;
+                        host = handlers.size();
                         break;
                     }
                     else{
@@ -105,10 +107,16 @@ public class Server {
             if (handler.getAuthToken().equals(token)) {
                 handlers.remove(handler);
                 checkStatus();
-                if (handlers.isEmpty())
+                if (handlers.isEmpty()) {
                     playerCount = 0;
+                    host = 0;
+                }
                 return;
             }
+    }
+
+    public void setPlayerCount(int playerCount) {
+        this.playerCount = playerCount;
     }
 
     public int getPort() {

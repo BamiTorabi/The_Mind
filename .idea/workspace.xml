@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5cfd2d77-6d14-47b0-a4d9-c19f19478162" name="Changes" comment="01/07/2022">
+    <list default="true" id="5cfd2d77-6d14-47b0-a4d9-c19f19478162" name="Changes" comment="01/07/2022 Client handling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/ClientMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/ClientMain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/ClientHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Server.java" afterDir="false" />
     </list>
@@ -200,7 +199,14 @@
       <option name="project" value="LOCAL" />
       <updated>1656656301874</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="01/07/2022 Client handling">
+      <created>1656660157989</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1656660157989</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -223,7 +229,8 @@
     <MESSAGE value="Good morning 30/06/2022" />
     <MESSAGE value="30/06/2022" />
     <MESSAGE value="01/07/2022" />
-    <option name="LAST_COMMIT_MESSAGE" value="01/07/2022" />
+    <MESSAGE value="01/07/2022 Client handling" />
+    <option name="LAST_COMMIT_MESSAGE" value="01/07/2022 Client handling" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/The_Mind$ClientMain.ic" NAME="ClientMain Coverage Results" MODIFIED="1656657783830" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
