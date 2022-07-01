@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5cfd2d77-6d14-47b0-a4d9-c19f19478162" name="Changes" comment="Add user handler">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/client/UserHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/client/UserHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/ClientHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Server.java" afterDir="false" />
+    <list default="true" id="5cfd2d77-6d14-47b0-a4d9-c19f19478162" name="Changes" comment="02/07/2022">
+      <change beforePath="$PROJECT_DIR$/src/main/java/server/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/server/Game.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +48,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.ServerMain">
+  <component name="RunManager" selected="Application.client.ClientMain">
     <configuration name="ServerMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="server.ServerMain" />
       <module name="The_Mind.main" />
@@ -232,7 +228,28 @@
       <option name="project" value="LOCAL" />
       <updated>1656697915970</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Add user handler">
+      <created>1656711070490</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1656711070490</updated>
+    </task>
+    <task id="LOCAL-00021" summary="02/07/2022">
+      <created>1656711338253</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1656711338253</updated>
+    </task>
+    <task id="LOCAL-00022" summary="02/07/2022">
+      <created>1656712441737</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1656712441737</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -256,8 +273,10 @@
     <MESSAGE value="30/06/2022" />
     <MESSAGE value="01/07/2022" />
     <MESSAGE value="01/07/2022 Client handling" />
+    <MESSAGE value="02/07/2022 Add game logic" />
     <MESSAGE value="Add user handler" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add user handler" />
+    <MESSAGE value="02/07/2022" />
+    <option name="LAST_COMMIT_MESSAGE" value="02/07/2022" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

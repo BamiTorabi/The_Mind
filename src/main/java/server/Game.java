@@ -15,6 +15,7 @@ public class Game {
     private int round;
     private int hearts;
     private int ninjas;
+    private int lastCard;
     private boolean started;
     private ArrayList<ArrayList<Integer>> playerHands;
 
@@ -41,6 +42,7 @@ public class Game {
         this.hearts = playerCount;
         this.ninjas = 1;
         this.round = 1;
+        this.lastCard = 0;
     }
 
     public void prepareRound(){
@@ -49,6 +51,7 @@ public class Game {
             for (int j = round * i; j < round * (i + 1); i++)
                 (playerHands.get(i)).add(cards.get(j));
         }
+        this.lastCard = 0;
     }
 
     public void nextRound(){
@@ -62,6 +65,7 @@ public class Game {
 
     public void playCard(int card){
         int mn = cardCount;
+        this.lastCard = card;
         for (int i = 0; i < playerCount; i++) {
             mn = Math.min(mn, Collections.min(playerHands.get(i)));
             playerHands.get(i).remove(Integer.valueOf(card));
@@ -77,6 +81,31 @@ public class Game {
                 );
             }
         }
+    }
+
+    public String getState(int player){
+        String S = "STATE/" +
+                playerCount + "/" +
+                round + "/" +
+                hearts + "/" +
+                ninjas + "/" +
+                lastCard + "/" +
+                player + "/";
+        for (int i = 0; i < playerCount; i++){
+            if (i == player - 1){
+                for (int j = 0; j < playerHands.get(i).size(); j++){
+                    S += playerHands.get(i).get(j);
+                    if (j != playerHands.get(i).size() - 1)
+                        S += ",";
+                }
+            }
+            else{
+                S += playerHands.get(i).size();
+            }
+            if (i != playerCount - 1)
+                S += "/";
+        }
+        return S;
     }
 
     public int getPlayerCount() {
