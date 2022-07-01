@@ -28,7 +28,7 @@ public class UserHandler implements Runnable{
 
     @Override
     public void run() {
-        synchronized (dead) {
+        synchronized (this) {
             while (!dead) {
                 String S = ask("");
                 client.reactToUser(S);
@@ -37,7 +37,7 @@ public class UserHandler implements Runnable{
     }
 
     public void kill(){
-        synchronized (dead) {
+        synchronized (this) {
             dead = true;
         }
     }

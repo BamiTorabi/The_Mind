@@ -51,7 +51,7 @@ public class ClientHandler implements Runnable{
         while (true){
             try{
                 int n = Integer.parseInt(number);
-                if (2 <= n && n <= server.getPlayersPerLobby()){
+                if (2 <= n && n <= server.getMaxPlayersPerLobby()){
                     server.getGame().setPlayerCount(n);
                     server.setHostToken(this.authToken);
                     break;

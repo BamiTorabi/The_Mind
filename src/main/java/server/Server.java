@@ -16,7 +16,7 @@ public class Server {
     private List<ClientHandler> handlers;
     private ServerStatus status;
     final private int port = 8080;
-    final private int playersPerLobby = 4;
+    final private int maxPlayersPerLobby = 4;
     private String hostToken = "";
 
     private Server (){
@@ -77,7 +77,7 @@ public class Server {
     }
 
     public void checkStatus(){
-        if (handlers.size() >= game.getPlayerCount()){
+        if (handlers.size() >= maxPlayersPerLobby){
             status = FULL;
         }
         else{
@@ -95,17 +95,15 @@ public class Server {
                     hostToken = "";
                     if (handlers.isEmpty())
                         return;
-                    System.err.println(handlers.get(0).getName());
                     handlers.get(0).askNumberOfPlayers();
-
                 }
                 return;
             }
     }
 
 
-    public int getPlayersPerLobby() {
-        return playersPerLobby;
+    public int getMaxPlayersPerLobby() {
+        return maxPlayersPerLobby;
     }
 
     public void setHostToken(String hostToken) {
