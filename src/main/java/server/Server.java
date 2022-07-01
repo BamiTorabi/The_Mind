@@ -34,7 +34,7 @@ public class Server {
     public void init(){
         try{
             ServerSocket serverSocket = new ServerSocket(port);
-            while (true){
+            while (!serverSocket.isClosed()){
                 System.err.println("Waiting for connection...");
                 Socket socket = serverSocket.accept();
                 addNewClientHandler(socket);
