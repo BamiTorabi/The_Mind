@@ -4,11 +4,12 @@ import client.Client;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class GUIHandler extends JFrame {
+public class GUIHandler extends JFrame implements Runnable{
 
     final private int WIDTH = 1280;
     final private int HEIGHT = 1024;
@@ -20,6 +21,7 @@ public class GUIHandler extends JFrame {
 
     private JLabel backgroundLabel, heartLabel, ninjaLabel;
     private JButton heartButton, ninjaButton;
+    private JLayeredPane pane;
     private ImageLoader loader;
 
     private int playerCount, round, hearts, ninjas, lastCard, playerID;
@@ -29,8 +31,6 @@ public class GUIHandler extends JFrame {
 
     public GUIHandler(Client client){
         super();
-        this.setTitle("The Mind!");
-        this.loader = new ImageLoader();
         this.client = client;
     }
 
@@ -71,14 +71,20 @@ public class GUIHandler extends JFrame {
 
     public void drawGameState(String state){
         unloadData(state);
+
+        this.pane.removeAll();
         this.getContentPane().removeAll();
 
         addBackground();
         addHearts();
         addNinjas();
         addPlayers();
-
         addHand();
+
+        this.add(this.pane);
+        this.pane.revalidate();
+        this.pane.repaint();
+
         this.getContentPane().revalidate();
         this.getContentPane().repaint();
     }
@@ -87,18 +93,18 @@ public class GUIHandler extends JFrame {
         this.backgroundLabel = new JLabel();
         this.backgroundLabel.setBounds(0, 0, WIDTH, HEIGHT);
         this.backgroundLabel.setIcon(this.loader.getBackground());
-        this.add(this.backgroundLabel);
+        pane.add(this.backgroundLabel, 1);
     }
 
     public void addHearts(){
         this.heartButton = new JButton();
-        this.heartButton.setBounds(MARGIN_SIZE, HEIGHT - MARGIN_SIZE - ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        this.heartButton.setBounds(MARGIN_SIZE, HEIGHT / 2 - MARGIN_SIZE - ICON_SIZE, ICON_SIZE, ICON_SIZE);
         this.heartButton.setIcon(this.loader.getHeart());
         this.heartButton.setEnabled(false);
         this.add(this.heartButton);
 
         this.heartLabel = new JLabel();
-        this.heartLabel.setBounds(2 * MARGIN_SIZE + ICON_SIZE, HEIGHT - MARGIN_SIZE - ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        this.heartLabel.setBounds(2 * MARGIN_SIZE + ICON_SIZE, HEIGHT / 2 - MARGIN_SIZE - ICON_SIZE, ICON_SIZE, ICON_SIZE);
         this.heartLabel.setForeground(Color.GREEN);
         this.heartLabel.setText(String.valueOf(this.hearts));
         this.add(this.heartLabel);
@@ -106,13 +112,13 @@ public class GUIHandler extends JFrame {
 
     public void addNinjas(){
         this.ninjaButton = new JButton();
-        this.ninjaButton.setBounds(MARGIN_SIZE, HEIGHT + MARGIN_SIZE, ICON_SIZE, ICON_SIZE);
+        this.ninjaButton.setBounds(MARGIN_SIZE, HEIGHT / 2 + MARGIN_SIZE, ICON_SIZE, ICON_SIZE);
         this.ninjaButton.setIcon(this.loader.getNinja());
         this.ninjaButton.setEnabled(this.ninjas > 0);
         this.add(this.ninjaButton);
 
         this.ninjaLabel = new JLabel();
-        this.ninjaLabel.setBounds(2 * MARGIN_SIZE + ICON_SIZE, HEIGHT + MARGIN_SIZE, ICON_SIZE, ICON_SIZE);
+        this.ninjaLabel.setBounds(2 * MARGIN_SIZE + ICON_SIZE, HEIGHT / 2 + MARGIN_SIZE, ICON_SIZE, ICON_SIZE);
         this.ninjaLabel.setForeground(Color.GREEN);
         this.ninjaLabel.setText(String.valueOf(this.ninjas));
         this.add(this.ninjaLabel);
@@ -148,4 +154,14 @@ public class GUIHandler extends JFrame {
         this.add(button);
     }
 
+    @Override
+    public void run() {
+        this.setTitle("The Mind!");
+        this.loader = ImageLoader.getInstance();
+        this.setSize(WIDTH, HEIGHT);
+        this.pane = new JLayeredPane();
+        this.pane.setSize(WIDTH, HEIGHT);
+        this.setLayout(null);
+        this.setVisible(true);
+    }
 }

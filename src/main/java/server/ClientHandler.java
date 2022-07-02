@@ -62,22 +62,23 @@ public class ClientHandler implements Runnable{
     @Override
     public void run() {
         try{
+            sendMessage("AUTH_TOKEN/" + authToken);
             sendMessage("HANDLE_USER");
             while (!socket.isClosed()){
                 String[] S = getInput().split("/");
                 System.out.println(Arrays.asList(S));
                 switch (S[1]){
                     case "MESSAGE":
+                        if (S.length < 3)
+                            continue;
                         if (S[2].equalsIgnoreCase("start")){
                             if (server.getHostToken().equals(S[0])){
-
+                                server.startGame();
                             }
                             else{
                                 sendMessage("ERROR/NOT_HOST");
                             }
                         }
-                        break;
-                    case "":
                         break;
                 }
             }

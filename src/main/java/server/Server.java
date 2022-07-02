@@ -18,7 +18,7 @@ public class Server {
     private ServerStatus status;
     final private int port = 8080;
     final private int maxPlayersPerLobby = 4;
-    final private int threshold = 100;
+    final private int threshold = 1000;
     private String hostToken = "";
     private SecureRandom random;
     private Clock clock;
@@ -30,6 +30,7 @@ public class Server {
         game = Game.getInstance();
         random = new SecureRandom();
         clock = Clock.systemDefaultZone();
+        map = new TreeMap<>();
         status = OPEN;
     }
 
@@ -73,7 +74,6 @@ public class Server {
             handler.askNumberOfPlayers();
         }
         new Thread(handler).start();
-        handler.sendMessage("AUTH_TOKEN/" + handler.getAuthToken());
         updateStatus();
     }
 
@@ -110,18 +110,24 @@ public class Server {
             for (ClientHandler handler : handlers) {
                 handler.sendMessage("START_GAME");
             }
-        } catch (IOException ignored){}
-
+        } catch (IOException ignored){
+            System.err.println("fuck");
+        }
         try{
-            long previousUpdate = clock.millis();
             while (true){
-                if (clock.millis() - previousUpdate >= threshold) {
-                    previousUpdate = clock.millis();
-                    for (ClientHandler handler : handlers)
-                        handler.sendMessage(game.getState(map.get(handler.getAuthToken())));
+                Thread.sleep(threshold);
+                for (ClientHandler handler : handlers){
+                    System.err.println(getState(handler.getAuthToken()));
+                    handler.sendMessage(getState(handler.getAuthToken()));
                 }
             }
-        } catch (IOException ignored){}
+        } catch (InterruptedException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getState(String token){
+        return "STATE/" + game.getState(map.get(token));
     }
 
     public ArrayList<String> getNames(){
@@ -129,7 +135,7 @@ public class Server {
         for (Map.Entry<String, Integer> entry : map.entrySet()){
             names[entry.getValue() - 1] = entry.getKey();
         }
-        return (ArrayList<String>) Arrays.stream(names).toList();
+        return new ArrayList<>(Arrays.asList(names));
     }
 
     public void removeHandler(String token) throws IOException {

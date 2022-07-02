@@ -31,6 +31,7 @@ public class Game {
     }
 
     public void init(){
+        System.err.println(playerCount);
         this.maxRounds = 16 - 2 * playerCount;
         this.playerHands = new ArrayList<>();
         this.names = Server.getInstance().getNames();
@@ -40,12 +41,13 @@ public class Game {
         this.ninjas = 1;
         this.round = 1;
         this.lastCard = 0;
+        this.prepareRound();
     }
 
     public void prepareRound(){
         Collections.shuffle(cards, rand);
-        for (int i = 0; i < round; i++){
-            for (int j = round * i; j < round * (i + 1); i++)
+        for (int i = 0; i < playerCount; i++){
+            for (int j = round * i; j < round * (i + 1); j++)
                 (playerHands.get(i)).add(cards.get(j));
         }
         this.lastCard = 0;
@@ -87,6 +89,12 @@ public class Game {
                 ninjas + "/" +
                 lastCard + "/" +
                 player + "/";
+        for (int i = 0; i < playerCount; i++){
+            S += this.names.get(i);
+            if (i != playerCount - 1)
+                S += ",";
+        }
+        S += "/";
         for (int i = 0; i < playerCount; i++){
             if (i == player - 1){
                 for (int j = 0; j < playerHands.get(i).size(); j++){

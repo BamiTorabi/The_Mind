@@ -27,18 +27,14 @@ public class UserHandler implements Runnable{
     }
 
     @Override
-    public void run() {
-        synchronized (this) {
-            while (!dead) {
-                String S = ask("");
-                client.reactToUser(S);
-            }
+    synchronized public void run() {
+        while (!dead) {
+            String S = ask("");
+            client.reactToUser(S);
         }
     }
 
-    public void kill(){
-        synchronized (this) {
-            dead = true;
-        }
+    synchronized public void kill(){
+        dead = true;
     }
 }
