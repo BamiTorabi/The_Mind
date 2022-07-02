@@ -19,10 +19,11 @@ public class Client implements Runnable{
     private Thread userThread;
 
     public void init() throws IOException {
-        this.socket = new Socket("localhost", 8080);
+        this.socket = new Socket("localhost", 9000);
         this.input = new Scanner(socket.getInputStream());
         this.output = new PrintWriter(socket.getOutputStream());
         this.user = new UserHandler(this);
+        this.userThread = new Thread(this.user);
         String response = "";
         while (!socket.isClosed()){
             String message = getMessage();
@@ -57,14 +58,13 @@ public class Client implements Runnable{
                     sendMessage("PLAYER_CNT/" + response);
                     break;
                 case "HANDLE_USER":
-                    userThread = new Thread(this.user);
-                    userThread.start();
+                    this.userThread.start();
                     break;
                 case "START_GAME":
-                    userThread.interrupt();
+                    this.userThread.interrupt();
                     this.guiHandler = new GUIHandler(this);
-                    userThread = new Thread(this.guiHandler);
-                    userThread.start();
+                    this.userThread = new Thread(this.guiHandler);
+                    this.userThread.start();
                     break;
                 case "AUTH_TOKEN":
                     this.authToken = S[1];
@@ -98,7 +98,7 @@ public class Client implements Runnable{
         try{
             init();
         } catch (Exception e){
-
+            throw new RuntimeException(e);
         }
     }
 

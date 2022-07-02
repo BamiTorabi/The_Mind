@@ -80,16 +80,16 @@ public class ClientHandler implements Runnable{
                             }
                         }
                         break;
+                    case "PLAY_CARD":
+                        try{
+                            int n = Integer.parseInt(S[2]);
+                            server.playCard(n);
+                        } catch (NumberFormatException e){}
+                        break;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | NoSuchElementException e) {
             throw new RuntimeException(e);
-        } catch (NoSuchElementException e){
-            try {
-                kill();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
         }
     }
 

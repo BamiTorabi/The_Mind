@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static server.ServerStatus.*;
 
@@ -16,9 +17,9 @@ public class Server {
     private Game game;
     private List<ClientHandler> handlers;
     private ServerStatus status;
-    final private int port = 8080;
+    final private int port = 9000;
     final private int maxPlayersPerLobby = 4;
-    final private int threshold = 1000;
+    final private int threshold = 100;
     private String hostToken = "";
     private SecureRandom random;
     private Clock clock;
@@ -114,15 +115,18 @@ public class Server {
             System.err.println("fuck");
         }
         try{
-            while (true){
-                Thread.sleep(threshold);
-                for (ClientHandler handler : handlers){
-                    System.err.println(getState(handler.getAuthToken()));
-                    handler.sendMessage(getState(handler.getAuthToken()));
-                }
-            }
-        } catch (InterruptedException | IOException e) {
+            playCard(0);
+        } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void playCard(int n) throws IOException {
+        if (n != 0)
+            game.playCard(n);
+        for (ClientHandler handler : handlers){
+            System.err.println(getState(handler.getAuthToken()));
+            handler.sendMessage(getState(handler.getAuthToken()));
         }
     }
 
@@ -133,7 +137,9 @@ public class Server {
     public ArrayList<String> getNames(){
         String[] names = new String[game.getPlayerCount()];
         for (Map.Entry<String, Integer> entry : map.entrySet()){
-            names[entry.getValue() - 1] = entry.getKey();
+            for (ClientHandler handler : handlers)
+                if (handler.getAuthToken().equals(entry.getKey()))
+                    names[entry.getValue() - 1] = handler.getName();
         }
         return new ArrayList<>(Arrays.asList(names));
     }

@@ -4,6 +4,8 @@ import client.Client;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,13 @@ public class GUIHandler extends JFrame implements Runnable{
     public GUIHandler(Client client){
         super();
         this.client = client;
+        this.setTitle("The Mind!");
+        this.loader = ImageLoader.getInstance();
+        this.setSize(WIDTH, HEIGHT);
+        this.pane = new JLayeredPane();
+        this.pane.setSize(WIDTH, HEIGHT);
+        this.setLayout(null);
+        this.setVisible(true);
     }
 
     public void unloadData(String state){
@@ -49,27 +58,25 @@ public class GUIHandler extends JFrame implements Runnable{
             String[] names = S[7].split(",");
             this.playerNames.addAll(Arrays.asList(names));
             for (int i = 1; i <= this.playerCount; i++){
-                if (i == this.playerID){
-                    this.playersCount.add(0);
-                }
-                else{
-                    int n = Integer.parseInt(S[7 + i]);
-                    this.playersCount.add(n);
-                }
+                int n = Integer.parseInt(S[7 + i]);
+                this.playersCount.add(n);
             }
-            String[] T = S[7 + playerID].split(",");
-            for (int i = 0; i < this.round; i++){
-                int n = Integer.parseInt(T[i]);
-                this.playerHand.add(n);
+            if (this.playersCount.get(this.playerID - 1) != 0) {
+                String[] T = S[8 + this.playerCount].split(",");
+                for (int i = 0; i < this.round; i++) {
+                    int n = Integer.parseInt(T[i]);
+                    this.playerHand.add(n);
+                }
+                Collections.sort(this.playerHand);
             }
-            Collections.sort(this.playerHand);
-            this.playersCount.set(this.playerID - 1, this.playerHand.size());
         } catch (NumberFormatException e){
 
         }
     }
 
     public void drawGameState(String state){
+        if (!this.isVisible())
+            return;
         unloadData(state);
 
         this.pane.removeAll();
@@ -93,7 +100,7 @@ public class GUIHandler extends JFrame implements Runnable{
         this.backgroundLabel = new JLabel();
         this.backgroundLabel.setBounds(0, 0, WIDTH, HEIGHT);
         this.backgroundLabel.setIcon(this.loader.getBackground());
-        pane.add(this.backgroundLabel, 1);
+        this.pane.add(this.backgroundLabel, 1);
     }
 
     public void addHearts(){
@@ -136,13 +143,24 @@ public class GUIHandler extends JFrame implements Runnable{
     }
 
     public void addHand(){
-        for (int i = 0; i < this.round; i++){
+        for (int i = 0; i < this.playerHand.size(); i++){
             JButton button = new JButton();
             button.setBackground(Color.PINK);
             button.setForeground(Color.RED);
             button.setText(String.valueOf(this.playerHand.get(i)));
             button.setBounds(MARGIN_SIZE + ICON_SIZE + i * CARD_SIZE, HEIGHT - MARGIN_SIZE - CARD_SIZE, CARD_SIZE, CARD_SIZE);
-            button.setEnabled(i == 0);
+            if (i == 0){
+                button.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            client.sendMessage("PLAY_CARD/" + playerHand.get(0));
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                });
+            }
             this.add(button);
         }
         JButton button = new JButton();
@@ -156,12 +174,6 @@ public class GUIHandler extends JFrame implements Runnable{
 
     @Override
     public void run() {
-        this.setTitle("The Mind!");
-        this.loader = ImageLoader.getInstance();
-        this.setSize(WIDTH, HEIGHT);
-        this.pane = new JLayeredPane();
-        this.pane.setSize(WIDTH, HEIGHT);
-        this.setLayout(null);
-        this.setVisible(true);
+
     }
 }
