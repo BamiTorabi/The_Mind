@@ -1,6 +1,8 @@
 package client;
 
 
+import client.graphics.GUIHandler;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -13,6 +15,7 @@ public class Client implements Runnable{
     private Scanner input;
     private PrintWriter output;
     private UserHandler user;
+    private GUIHandler guiHandler;
 
     public void init() throws IOException {
         this.socket = new Socket("localhost", 8080);
@@ -21,7 +24,8 @@ public class Client implements Runnable{
         this.user = new UserHandler(this);
         String response = "";
         while (!socket.isClosed()){
-            String[] S = getMessage().split("/");
+            String message = getMessage();
+            String[] S = message.split("/");
             switch (S[0]){
                 case "ERROR":
                     switch (S[1]){
@@ -39,7 +43,7 @@ public class Client implements Runnable{
                     }
                     break;
                 case "STATE":
-                    System.out.println(S);
+                    guiHandler.drawGameState(message);
                     break;
                 case "NAME":
                     response = user.ask("Enter your name: ");
@@ -54,13 +58,21 @@ public class Client implements Runnable{
                 case "HANDLE_USER":
                     new Thread(user).start();
                     break;
+                case "START_GAME":
+                    user.kill();
+                    guiHandler = new GUIHandler(this);
+                    break;
+                case "AUTH_TOKEN":
+                    this.authToken = S[1];
+                    break;
             }
-
         }
         user.kill();
     }
 
     public void sendMessage(String message) throws IOException {
+        if (message.equals(""))
+            System.err.println("bitch");
         output = new PrintWriter(socket.getOutputStream());
         output.println(this.authToken + "/" + message);
         output.flush();
@@ -84,6 +96,7 @@ public class Client implements Runnable{
         try{
             init();
         } catch (Exception e){
+
         }
     }
 

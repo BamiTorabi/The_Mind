@@ -3,8 +3,9 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.security.SecureRandom;
+import java.time.Clock;
+import java.util.*;
 
 import static server.ServerStatus.*;
 
@@ -17,11 +18,18 @@ public class Server {
     private ServerStatus status;
     final private int port = 8080;
     final private int maxPlayersPerLobby = 4;
+    final private int threshold = 100;
     private String hostToken = "";
+    private SecureRandom random;
+    private Clock clock;
+    private TreeMap<String, Integer> map;
+
 
     private Server (){
         handlers = new ArrayList<>();
         game = Game.getInstance();
+        random = new SecureRandom();
+        clock = Clock.systemDefaultZone();
         status = OPEN;
     }
 
@@ -44,6 +52,12 @@ public class Server {
         }
     }
 
+    public void authenticate(ClientHandler handler) throws IOException {
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
+        handler.setAuthToken(bytes.toString());
+    }
+
     public void addNewClientHandler(Socket socket) throws IOException {
         ClientHandler handler = new ClientHandler(socket);
         if (status != OPEN){
@@ -51,7 +65,7 @@ public class Server {
             handler.kill();
             return;
         }
-        handler.authenticate();
+        authenticate(handler);
         System.err.println("Authenticated client with token " + handler.getAuthToken());
         handler.askName();
         handlers.add(handler);
@@ -59,7 +73,8 @@ public class Server {
             handler.askNumberOfPlayers();
         }
         new Thread(handler).start();
-        checkStatus();
+        handler.sendMessage("AUTH_TOKEN/" + handler.getAuthToken());
+        updateStatus();
     }
 
     public void sendToAll(String token, String message){
@@ -76,7 +91,7 @@ public class Server {
         }
     }
 
-    public void checkStatus(){
+    public void updateStatus(){
         if (handlers.size() >= maxPlayersPerLobby){
             status = FULL;
         }
@@ -85,11 +100,43 @@ public class Server {
         }
     }
 
+    public void startGame() {
+        int pt = 1;
+        for (ClientHandler handler : handlers){
+            map.put(handler.getAuthToken(), pt++);
+        }
+        game.init();
+        try {
+            for (ClientHandler handler : handlers) {
+                handler.sendMessage("START_GAME");
+            }
+        } catch (IOException ignored){}
+
+        try{
+            long previousUpdate = clock.millis();
+            while (true){
+                if (clock.millis() - previousUpdate >= threshold) {
+                    previousUpdate = clock.millis();
+                    for (ClientHandler handler : handlers)
+                        handler.sendMessage(game.getState(map.get(handler.getAuthToken())));
+                }
+            }
+        } catch (IOException ignored){}
+    }
+
+    public ArrayList<String> getNames(){
+        String[] names = new String[game.getPlayerCount()];
+        for (Map.Entry<String, Integer> entry : map.entrySet()){
+            names[entry.getValue() - 1] = entry.getKey();
+        }
+        return (ArrayList<String>) Arrays.stream(names).toList();
+    }
+
     public void removeHandler(String token) throws IOException {
         for (ClientHandler handler : handlers)
             if (handler.getAuthToken().equals(token)) {
                 handlers.remove(handler);
-                checkStatus();
+                updateStatus();
                 if (token.equals(hostToken)) {
                     game.setPlayerCount(0);
                     hostToken = "";

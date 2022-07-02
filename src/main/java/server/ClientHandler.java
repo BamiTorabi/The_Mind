@@ -3,7 +3,7 @@ package server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -13,12 +13,11 @@ public class ClientHandler implements Runnable{
     private Scanner input;
     private PrintWriter output;
     private String name;
-    private SecureRandom random;
+
     private Server server;
 
     public ClientHandler (Socket socket){
         this.socket = socket;
-        random = new SecureRandom();
         server = Server.getInstance();
     }
 
@@ -31,12 +30,6 @@ public class ClientHandler implements Runnable{
     public String getInput() throws IOException {
         input = new Scanner(socket.getInputStream());
         return input.nextLine();
-    }
-
-    public void authenticate(){
-        byte[] bytes = new byte[20];
-        random.nextBytes(bytes);
-        this.authToken = bytes.toString();
     }
 
     public void askName() throws IOException {
@@ -72,6 +65,7 @@ public class ClientHandler implements Runnable{
             sendMessage("HANDLE_USER");
             while (!socket.isClosed()){
                 String[] S = getInput().split("/");
+                System.out.println(Arrays.asList(S));
                 switch (S[1]){
                     case "MESSAGE":
                         if (S[2].equalsIgnoreCase("start")){
@@ -113,5 +107,9 @@ public class ClientHandler implements Runnable{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 }

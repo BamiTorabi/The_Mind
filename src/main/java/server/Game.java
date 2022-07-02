@@ -7,15 +7,11 @@ import java.util.Random;
 public class Game {
 
     private static Game game = null;
-    private int playerCount = 0;
     final private int cardCount = 100;
     private Random rand;
     private ArrayList<Integer> cards;
-    private int maxRounds;
-    private int round;
-    private int hearts;
-    private int ninjas;
-    private int lastCard;
+    private ArrayList<String> names;
+    private int playerCount = 0, maxRounds, round, hearts, ninjas, lastCard;
     private boolean started;
     private ArrayList<ArrayList<Integer>> playerHands;
 
@@ -36,9 +32,10 @@ public class Game {
 
     public void init(){
         this.maxRounds = 16 - 2 * playerCount;
-        playerHands = new ArrayList<>();
+        this.playerHands = new ArrayList<>();
+        this.names = Server.getInstance().getNames();
         for (int i = 0; i < playerCount; i++)
-            playerHands.add(new ArrayList<>());
+            this.playerHands.add(new ArrayList<>());
         this.hearts = playerCount;
         this.ninjas = 1;
         this.round = 1;
@@ -84,8 +81,7 @@ public class Game {
     }
 
     public String getState(int player){
-        String S = "STATE/" +
-                playerCount + "/" +
+        String S = playerCount + "/" +
                 round + "/" +
                 hearts + "/" +
                 ninjas + "/" +
