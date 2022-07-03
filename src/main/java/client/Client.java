@@ -73,6 +73,12 @@ public class Client implements Runnable{
                     this.userThread.interrupt();
                     kill();
                     break;
+                case "NINJA_A":
+                    boolean ninja = this.guiHandler.askNinja();
+                    this.sendMessage("NINJA_A/" + ninja);
+                    break;
+                case "PLAY_NINJA":
+                    this.guiHandler.showNinjaResult(message);
             }
         }
         user.kill();

@@ -37,6 +37,7 @@ public class GUIHandler extends JFrame implements Runnable{
         this.setTitle("The Mind!");
         this.loader = ImageLoader.getInstance();
         this.setSize(WIDTH, HEIGHT);
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.pane = new JLayeredPane();
         this.pane.setSize(WIDTH, HEIGHT);
         this.setLayout(null);
@@ -138,6 +139,16 @@ public class GUIHandler extends JFrame implements Runnable{
         this.ninjaButton.setBounds(MARGIN_SIZE, HEIGHT / 2 + MARGIN_SIZE, ICON_SIZE, ICON_SIZE);
         this.ninjaButton.setIcon(this.loader.getNinja());
         this.ninjaButton.setEnabled(this.ninjas > 0);
+        this.ninjaButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    client.sendMessage("NINJA_Q");
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
         this.add(this.ninjaButton);
 
         this.ninjaLabel = new JLabel();
@@ -186,6 +197,16 @@ public class GUIHandler extends JFrame implements Runnable{
         button.setBounds((WIDTH - CARD_SIZE) / 2, (HEIGHT - CARD_SIZE) / 2, CARD_SIZE, CARD_SIZE);
         button.setEnabled(false);
         this.add(button);
+    }
+
+    public boolean askNinja(){
+        int choice = JOptionPane.showConfirmDialog(this, "Should a ninja card be played?", "Ninja?", JOptionPane.YES_NO_OPTION);
+        return (choice == 0);
+    }
+
+    public void showNinjaResult(String message){
+        String S = message.substring(11);
+        JOptionPane.showMessageDialog(this, "Cards discarded by the ninja were: " + S);
     }
 
     @Override

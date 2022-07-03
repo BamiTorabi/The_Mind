@@ -104,7 +104,21 @@ public class Game {
             }
             return;
         }
+    }
 
+    synchronized public String playNinja(){
+        this.ninjas--;
+        boolean flag = true;
+        String S = "";
+        for (int i = 0; i < playerCount; i++){
+            if (playerHands.get(i).isEmpty())
+                continue;
+            int mn = Collections.min(playerHands.get(i));
+            playerHands.get(i).remove(Integer.valueOf(mn));
+            flag &= playerHands.get(i).isEmpty();
+            S += mn + "/";
+        }
+        return S;
     }
 
     synchronized public String getState(int player){

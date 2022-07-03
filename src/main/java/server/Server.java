@@ -24,7 +24,8 @@ public class Server {
     private SecureRandom random;
     private Clock clock;
     private TreeMap<String, Integer> map;
-
+    private int[] ninjaAnswers;
+    private int answeredCount;
 
     private Server (){
         handlers = new ArrayList<>();
@@ -145,6 +146,32 @@ public class Server {
                     handler.sendMessage("END_GAME");
                 }
                 break;
+        }
+    }
+
+    public void askNinja() throws IOException {
+        ninjaAnswers = new int[game.getPlayerCount()];
+        for (int i = 0; i < game.getPlayerCount(); i++)
+            ninjaAnswers[i] = -1;
+        answeredCount = 0;
+        for (ClientHandler handler : handlers){
+            handler.sendMessage("NINJA_A");
+        }
+    }
+
+    public void processNinjaAnswer(String token, boolean answer) throws IOException {
+        int id = map.get(token) - 1;
+        ninjaAnswers[id] = (answer ? 1 : 0);
+        answeredCount++;
+        if (answeredCount == game.getPlayerCount()){
+            if (Arrays.stream(ninjaAnswers).sum() == answeredCount) {
+                String ninjaCards = game.playNinja();
+                for (ClientHandler handler : handlers) {
+                    handler.sendMessage("PLAY_NINJA/" + ninjaCards);
+                    String message = getState(handler.getAuthToken());
+                    handler.sendMessage(message);
+                }
+            }
         }
     }
 

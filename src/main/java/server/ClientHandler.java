@@ -86,6 +86,11 @@ public class ClientHandler implements Runnable{
                             server.playCard(n);
                         } catch (NumberFormatException e){}
                         break;
+                    case "NINJA_Q":
+                        server.askNinja();
+                        break;
+                    case "NINJA_A":
+                        server.processNinjaAnswer(S[0], S[2].equals("true"));
                 }
             }
         } catch (IOException | NoSuchElementException e) {
