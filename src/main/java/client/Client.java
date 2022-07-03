@@ -69,6 +69,10 @@ public class Client implements Runnable{
                 case "AUTH_TOKEN":
                     this.authToken = S[1];
                     break;
+                case "END_GAME":
+                    this.userThread.interrupt();
+                    kill();
+                    break;
             }
         }
         user.kill();

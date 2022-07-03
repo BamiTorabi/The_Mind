@@ -45,6 +45,21 @@ public class GUIHandler extends JFrame implements Runnable{
 
     public void unloadData(String state){
         String[] S = state.split("/");
+        if (S.length == 2){
+            switch (S[1]){
+                case "WON_ROUND":
+                    JOptionPane.showMessageDialog(this, "Round " + this.round + " was completed successfully!");
+                    break;
+                case "LOST":
+                    JOptionPane.showMessageDialog(this, "OOPS! You lost the game. Better luck next time!");
+                    break;
+                case "FINISHED":
+                    JOptionPane.showMessageDialog(this, "Round " + this.round + " was completed successfully!");
+                    JOptionPane.showMessageDialog(this, "You won the game! Well done!");
+                    break;
+            }
+            return;
+        }
         this.playersCount = new ArrayList<>();
         this.playerHand = new ArrayList<>();
         this.playerNames = new ArrayList<>();
@@ -63,7 +78,7 @@ public class GUIHandler extends JFrame implements Runnable{
             }
             if (this.playersCount.get(this.playerID - 1) != 0) {
                 String[] T = S[8 + this.playerCount].split(",");
-                for (int i = 0; i < this.round; i++) {
+                for (int i = 0; i < T.length; i++) {
                     int n = Integer.parseInt(T[i]);
                     this.playerHand.add(n);
                 }
@@ -75,12 +90,13 @@ public class GUIHandler extends JFrame implements Runnable{
     }
 
     public void drawGameState(String state){
-        if (!this.isVisible())
-            return;
         unloadData(state);
 
         this.pane.removeAll();
         this.getContentPane().removeAll();
+
+        if (this.playerHand == null)
+            return;
 
         addBackground();
         addHearts();

@@ -93,7 +93,7 @@ public class Server {
     }
 
     public void updateStatus(){
-        if (handlers.size() >= maxPlayersPerLobby){
+        if (handlers.size() >= game.getPlayerCount()){
             status = FULL;
         }
         else{
@@ -125,13 +125,35 @@ public class Server {
         if (n != 0)
             game.playCard(n);
         for (ClientHandler handler : handlers){
-            System.err.println(getState(handler.getAuthToken()));
-            handler.sendMessage(getState(handler.getAuthToken()));
+            String message = getState(handler.getAuthToken());
+            System.err.println(message);
+            handler.sendMessage(message);
+        }
+        switch(game.getStatus()){
+            case PENDING:
+                break;
+            case WON_ROUND:
+                game.nextRound();
+                for (ClientHandler handler : handlers) {
+                    String message = getState(handler.getAuthToken());
+                    handler.sendMessage(message);
+                }
+                break;
+            case FINISHED:
+            case LOST:
+                for (ClientHandler handler : handlers) {
+                    handler.sendMessage("END_GAME");
+                }
+                break;
         }
     }
 
     public String getState(String token){
-        return "STATE/" + game.getState(map.get(token));
+        String state = game.getState(map.get(token));
+        if (state.equals("*")){
+            return "STATE/" + game.getStatus().toString();
+        }
+        return "STATE/" + state;
     }
 
     public ArrayList<String> getNames(){

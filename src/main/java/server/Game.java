@@ -8,6 +8,7 @@ public class Game {
 
     private static Game game = null;
     final private int cardCount = 100;
+    private GameStatus status;
     private Random rand;
     private ArrayList<Integer> cards;
     private ArrayList<String> names;
@@ -31,7 +32,7 @@ public class Game {
     }
 
     public void init(){
-        System.err.println(playerCount);
+        this.status = GameStatus.PENDING;
         this.maxRounds = 16 - 2 * playerCount;
         this.playerHands = new ArrayList<>();
         this.names = Server.getInstance().getNames();
@@ -55,34 +56,61 @@ public class Game {
 
     public void nextRound(){
         round++;
+        if (round == maxRounds){
+            status = GameStatus.FINISHED;
+            return;
+        }
         if (round % 3 == 0 && round < 10)
             this.hearts++;
         if (round % 3 == 2 && round < 10)
             this.ninjas++;
+        status = GameStatus.PENDING;
         prepareRound();
     }
 
     synchronized public void playCard(int card){
-        int mn = cardCount;
+        int mn = cardCount + 1;
         this.lastCard = card;
+        boolean flag = true;
         for (int i = 0; i < playerCount; i++) {
+            if (playerHands.get(i).isEmpty())
+                continue;
             mn = Math.min(mn, Collections.min(playerHands.get(i)));
             playerHands.get(i).remove(Integer.valueOf(card));
+            flag &= playerHands.get(i).isEmpty();
         }
         if (card != mn){
             this.hearts--;
+            flag = true;
+            if (this.hearts == 0){
+                status = GameStatus.LOST;
+            }
             for (int i = 0; i < playerCount; i++){
                 playerHands.set(i,
                         new ArrayList<>(playerHands.get(i)
-                        .stream()
-                        .filter(x -> (x <= card))
-                        .toList())
+                                .stream()
+                                .filter(x -> (x > card))
+                                .toList())
                 );
+                flag &= playerHands.get(i).isEmpty();
             }
         }
+        if (flag){
+            if (hearts > 0){
+                status = GameStatus.WON_ROUND;
+            }
+            else{
+                status = GameStatus.LOST;
+            }
+            return;
+        }
+
     }
 
     synchronized public String getState(int player){
+        if (status != GameStatus.PENDING){
+            return "*";
+        }
         String S = playerCount + "/" +
                 round + "/" +
                 hearts + "/" +
@@ -113,5 +141,9 @@ public class Game {
 
     public void setPlayerCount(int playerCount) {
         this.playerCount = playerCount;
+    }
+
+    public GameStatus getStatus() {
+        return status;
     }
 }
