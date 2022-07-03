@@ -110,6 +110,7 @@ public class Game {
         this.ninjas--;
         boolean flag = true;
         String S = "";
+        int mx = 0;
         for (int i = 0; i < playerCount; i++){
             if (playerHands.get(i).isEmpty())
                 continue;
@@ -117,7 +118,9 @@ public class Game {
             playerHands.get(i).remove(Integer.valueOf(mn));
             flag &= playerHands.get(i).isEmpty();
             S += mn + "/";
+            mx = Math.max(mx, mn);
         }
+        this.lastCard = mx;
         return S;
     }
 

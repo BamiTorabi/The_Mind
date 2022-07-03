@@ -26,9 +26,14 @@ public class Server {
     private TreeMap<String, Integer> map;
     private int[] ninjaAnswers;
     private int answeredCount;
+    private int botCount;
+    private ArrayList<Bot> bots;
+    private ArrayList<Thread> botThreads;
 
     private Server (){
         handlers = new ArrayList<>();
+        bots = new ArrayList<>();
+        botThreads = new ArrayList<>();
         game = Game.getInstance();
         random = new SecureRandom();
         clock = Clock.systemDefaultZone();
@@ -59,6 +64,12 @@ public class Server {
         byte[] bytes = new byte[20];
         random.nextBytes(bytes);
         handler.setAuthToken(bytes.toString());
+    }
+
+    public void authenticate(Bot bot){
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
+        bot.setAuthToken(bytes.toString());
     }
 
     public void addNewClientHandler(Socket socket) throws IOException {
@@ -107,13 +118,23 @@ public class Server {
         for (ClientHandler handler : handlers){
             map.put(handler.getAuthToken(), pt++);
         }
+        botCount = game.getPlayerCount() - handlers.size();
+        for (int i = 0; i < botCount; i++){
+            bots.add(new Bot("BOT_" + (i + 1)));
+            authenticate(bots.get(i));
+            map.put(bots.get(i).getAuthToken(), pt++);
+            botThreads.add(new Thread(bots.get(i)));
+        }
         game.init();
         try {
             for (ClientHandler handler : handlers) {
                 handler.sendMessage("START_GAME");
             }
+            for (Thread botThread : botThreads) {
+                botThread.start();
+            }
         } catch (IOException ignored){
-            System.err.println("fuck");
+            System.err.println("yo");
         }
         try{
             playCard(0);
@@ -130,6 +151,11 @@ public class Server {
             System.err.println(message);
             handler.sendMessage(message);
         }
+        for (Bot bot : bots){
+            String message = getState(bot.getAuthToken());
+            System.err.println(message);
+            bot.sendState(message);
+        }
         switch(game.getStatus()){
             case PENDING:
                 break;
@@ -137,7 +163,13 @@ public class Server {
                 game.nextRound();
                 for (ClientHandler handler : handlers) {
                     String message = getState(handler.getAuthToken());
+                    System.err.println(message);
                     handler.sendMessage(message);
+                }
+                for (Bot bot : bots){
+                    String message = getState(bot.getAuthToken());
+                    System.err.println(message);
+                    bot.sendState(message);
                 }
                 break;
             case FINISHED:
@@ -145,15 +177,28 @@ public class Server {
                 for (ClientHandler handler : handlers) {
                     handler.sendMessage("END_GAME");
                 }
+                for (Thread botThread : botThreads){
+                    botThread.interrupt();
+                }
                 break;
+        }
+    }
+
+    public void playCardBot(int n){
+        try {
+            playCard(n);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void askNinja() throws IOException {
         ninjaAnswers = new int[game.getPlayerCount()];
-        for (int i = 0; i < game.getPlayerCount(); i++)
+        for (int i = 0; i < handlers.size(); i++)
             ninjaAnswers[i] = -1;
-        answeredCount = 0;
+        for (int i = 0; i < botCount; i++)
+            ninjaAnswers[i + handlers.size()] = 1;
+        answeredCount = botCount;
         for (ClientHandler handler : handlers){
             handler.sendMessage("NINJA_A");
         }
@@ -189,6 +234,9 @@ public class Server {
             for (ClientHandler handler : handlers)
                 if (handler.getAuthToken().equals(entry.getKey()))
                     names[entry.getValue() - 1] = handler.getName();
+            for (Bot bot : bots)
+                if (bot.getAuthToken().equals(entry.getKey()))
+                    names[entry.getValue() - 1] = bot.getName();
         }
         return new ArrayList<>(Arrays.asList(names));
     }
