@@ -32,7 +32,9 @@ public class Bot implements Runnable{
         String[] S = state.split("/");
         if (S.length == 2){
             this.status = GameStatus.valueOf(S[1]);
-            this.notifyAll();
+            synchronized (this) {
+                this.notifyAll();
+            }
             return;
         }
         this.status = GameStatus.PENDING;
