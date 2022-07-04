@@ -66,7 +66,7 @@ public class ClientHandler implements Runnable{
             sendMessage("HANDLE_USER");
             while (!socket.isClosed()){
                 String[] S = getInput().split("/");
-                System.out.println(Arrays.asList(S));
+                //System.out.println(Arrays.asList(S));
                 switch (S[1]){
                     case "MESSAGE":
                         if (S.length < 3)

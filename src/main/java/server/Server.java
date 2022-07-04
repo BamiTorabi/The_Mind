@@ -146,42 +146,7 @@ public class Server {
     public void playCard(int n) throws IOException {
         if (n != 0)
             game.playCard(n);
-        for (ClientHandler handler : handlers){
-            String message = getState(handler.getAuthToken());
-            System.err.println(message);
-            handler.sendMessage(message);
-        }
-        for (Bot bot : bots){
-            String message = getState(bot.getAuthToken());
-            System.err.println(message);
-            bot.sendState(message);
-        }
-        switch(game.getStatus()){
-            case PENDING:
-                break;
-            case WON_ROUND:
-                game.nextRound();
-                for (ClientHandler handler : handlers) {
-                    String message = getState(handler.getAuthToken());
-                    System.err.println(message);
-                    handler.sendMessage(message);
-                }
-                for (Bot bot : bots){
-                    String message = getState(bot.getAuthToken());
-                    System.err.println(message);
-                    bot.sendState(message);
-                }
-                break;
-            case FINISHED:
-            case LOST:
-                for (ClientHandler handler : handlers) {
-                    handler.sendMessage("END_GAME");
-                }
-                for (Thread botThread : botThreads){
-                    botThread.interrupt();
-                }
-                break;
-        }
+        updateGame();
     }
 
     public void playCardBot(int n){
@@ -213,10 +178,39 @@ public class Server {
                 String ninjaCards = game.playNinja();
                 for (ClientHandler handler : handlers) {
                     handler.sendMessage("PLAY_NINJA/" + ninjaCards);
+                }
+                updateGame();
+            }
+        }
+    }
+
+    public void updateGame() throws IOException {
+        switch(game.getStatus()){
+            case WON_ROUND:
+                game.nextRound();
+                for (ClientHandler handler : handlers){
+                    handler.sendMessage("STATE/WON_ROUND");
+                }
+            case PENDING:
+                for (ClientHandler handler : handlers) {
                     String message = getState(handler.getAuthToken());
+                    //System.err.println(message);
                     handler.sendMessage(message);
                 }
-            }
+                for (Bot bot : bots){
+                    String message = getState(bot.getAuthToken());
+                    //System.err.println(message);
+                    bot.sendState(message);
+                }
+                break;
+            case FINISHED:
+            case LOST:
+                for (ClientHandler handler : handlers) {
+                    handler.sendMessage("STATE/" + game.getStatus().toString());
+                    handler.sendMessage("END_GAME");
+                    handler.kill();
+                }
+                break;
         }
     }
 
@@ -246,7 +240,7 @@ public class Server {
             if (handler.getAuthToken().equals(token)) {
                 handlers.remove(handler);
                 updateStatus();
-                if (token.equals(hostToken)) {
+                if (token.equals(hostToken) && game.getStatus() == null) {
                     game.setPlayerCount(0);
                     hostToken = "";
                     if (handlers.isEmpty())

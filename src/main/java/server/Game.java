@@ -102,7 +102,6 @@ public class Game {
             else{
                 status = GameStatus.LOST;
             }
-            return;
         }
     }
 
@@ -121,6 +120,25 @@ public class Game {
             mx = Math.max(mx, mn);
         }
         this.lastCard = mx;
+        int MX = mx;
+        flag = true;
+        for (int i = 0; i < playerCount; i++){
+            playerHands.set(i,
+                    new ArrayList<>(playerHands.get(i)
+                            .stream()
+                            .filter(x -> (x > MX))
+                            .toList())
+            );
+            flag &= playerHands.get(i).isEmpty();
+        }
+        if (flag){
+            if (hearts > 0){
+                status = GameStatus.WON_ROUND;
+            }
+            else{
+                status = GameStatus.LOST;
+            }
+        }
         return S;
     }
 

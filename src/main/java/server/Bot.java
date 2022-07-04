@@ -13,11 +13,11 @@ public class Bot implements Runnable{
     final private Server server;
     private boolean dead;
     private String authToken;
-    private long time;
+    volatile private long time;
     final private long timeThreshold = 1000;
 
-    private int playerCount, round, hearts, ninjas, lastCard, playerID;
-    private GameStatus status;
+    volatile private int playerCount, round, hearts, ninjas, lastCard, playerID;
+    volatile private GameStatus status;
     private ArrayList<Integer> playersCount, playerHand;
 
     public Bot(String name){
@@ -83,7 +83,9 @@ public class Bot implements Runnable{
     public void run() {
         this.status = GameStatus.WON_ROUND;
         while (!this.dead){
-            if (this.status != GameStatus.PENDING) {
+            if (this.status == GameStatus.FINISHED || this.status == GameStatus.LOST)
+                return;
+            if (this.status == GameStatus.WON_ROUND) {
                 try {
                     synchronized (this){
                         this.wait();
@@ -98,15 +100,8 @@ public class Bot implements Runnable{
             if (this.playersCount.stream().reduce(0, Integer::sum) == this.playerHand.size())
                 waitTime = timeThreshold;
             if (this.clock.millis() - this.time >= waitTime){
-                System.out.println(this.clock.millis() - this.time);
+                //System.out.println(this.clock.millis() - this.time);
                 server.playCardBot(this.playerHand.get(0));
-                try {
-                    synchronized (this){
-                        this.wait();
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     }

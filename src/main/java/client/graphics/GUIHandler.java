@@ -53,10 +53,12 @@ public class GUIHandler extends JFrame implements Runnable{
                     break;
                 case "LOST":
                     JOptionPane.showMessageDialog(this, "OOPS! You lost the game. Better luck next time!");
+                    dispose();
                     break;
                 case "FINISHED":
                     JOptionPane.showMessageDialog(this, "Round " + this.round + " was completed successfully!");
                     JOptionPane.showMessageDialog(this, "You won the game! Well done!");
+                    dispose();
                     break;
             }
             return;
@@ -124,7 +126,7 @@ public class GUIHandler extends JFrame implements Runnable{
         this.heartButton = new JButton();
         this.heartButton.setBounds(MARGIN_SIZE, HEIGHT / 2 - MARGIN_SIZE - ICON_SIZE, ICON_SIZE, ICON_SIZE);
         this.heartButton.setIcon(this.loader.getHeart());
-        this.heartButton.setEnabled(false);
+        //this.heartButton.setEnabled(false);
         this.add(this.heartButton);
 
         this.heartLabel = new JLabel();
